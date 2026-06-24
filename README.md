@@ -4,6 +4,29 @@ Dieses Projekt implementiert eine Typhierarchie für Tiere unter Verwendung von 
 
 ---
 
+## Begründung der Entwurfsentscheidungen (Aufgabe 1)
+
+### 1. Wahl der inneren Datenstruktur für Gehege (Aufgabe 1.2)
+* **Datenstruktur**: `Set<T>` (implementiert als `LinkedHashSet<T>`).
+* **Begründung**: 
+  * Ein `Set` garantiert von Natur aus, dass jedes Element nur einmal vorkommen kann (Duplikatfreiheit). Dies verhindert, dass dasselbe Tier-Objekt mehrfach in das Gehege gelegt wird.
+  * `LinkedHashSet` wurde gewählt, weil es die Einfügereihenfolge beibehält. Das erleichtert das Testen, Debuggen und die Anzeige der Bewohner im Vergleich zu einer ungeordneten `HashSet`, während es gleichzeitig die \(O(1)\)-Zeiteffizienz für Hinzufügen, Entfernen und Suchen beibehält.
+
+### 2. Parameter- und Rückgabetypen der Zoo-Methoden (Aufgabe 1.4)
+* **`addEnclosure(Enclosure<? extends Animal> enclosure)`**:
+  * *Parameter*: `Enclosure<? extends Animal>` (Verwendung von Upper-Bounded Wildcards) erlaubt die Übergabe beliebiger konkreter Gehegetypen wie `Aquarium` (das `Enclosure<Fish>` erweitert) oder `CatHouse<Tiger>`, was mit einem starren `Enclosure<Animal>` wegen der Invarianz von Generics in Java nicht möglich wäre.
+  * *Rückgabe*: `boolean` zeigt dem Aufrufer an, ob das Gehege erfolgreich hinzugefügt wurde (schlägt z. B. bei Namensdopplung fehl).
+* **`getEnclosures()`**:
+  * *Rückgabe*: `List<Enclosure<? extends Animal>>`, gekapselt mit `Collections.unmodifiableList()`. Dies schützt den internen Zustand der Zoo-Klasse vor unbefugter Manipulation von außen (Read-Only Ansicht).
+* **`findEnclosureByName(String name)`**:
+  * *Rückgabe*: `Optional<Enclosure<? extends Animal>>`. Macht explizit deutlich, dass ein Gehege eventuell nicht existiert. Dadurch wird der Aufrufer gezwungen, das Fehlen zu behandeln und potenzielle `NullPointerException`s werden vermieden.
+* **`getAnimalsByPredicate(Predicate<Animal> predicate)`**:
+  * *Parameter*: `Predicate<Animal>` ermöglicht es dem Aufrufer, hochgradig flexible Such- und Filterkriterien als Lambda-Ausdruck (z. B. Namenslänge oder spezifische Artmerkmale) zu übergeben.
+* **`countAnimalsByType()`**:
+  * *Rückgabe*: `Map<Class<? extends Animal>, Long>` bildet jeden konkreten Tiertyp (`Class<? extends Animal>`) auf die entsprechende Anzahl der Tiere ab, was für Auswertungen ideal ist.
+
+---
+
 ## Antworten zu Aufgabe 3: Reflektion
 
 ### 1. Generics
